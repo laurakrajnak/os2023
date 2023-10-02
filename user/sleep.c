@@ -8,7 +8,7 @@ main(int argc, char *argv[])
   int ticks;
 
   if (argc != 2) {
-    fprintf92, "sleep usage: sleep <ticks>\n");
+    fprintf(2, "sleep usage: sleep <ticks>\n");
   }
   ticks = atoi(argv[1]);
 
