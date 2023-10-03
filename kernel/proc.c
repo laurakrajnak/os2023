@@ -296,11 +296,19 @@ fork(void)
   }
   np->sz = p->sz;
 
+  np->parent = p;
+
+  np->mask = p->mask;
+
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 
   // Cause fork to return 0 in the child.
   np->trapframe->a0 = 0;
+
+  // Copy the parent's trap frame mask to the child.
+ // np->trapframe->tp_mstatus = p->trapframe->tp_mstatus;
+ // np->trapframe->tp_sstatus = p->trapframe->tp_sstatus;
 
   // increment reference counts on open file descriptors.
   for(i = 0; i < NOFILE; i++)
