@@ -694,3 +694,30 @@ procdump(void)
     printf("\n");
   }
 }
+
+uint64 cal_nproc(){
+  uint64 nproc=0;
+  struct proc *p;
+  for(p = proc; p < &proc[NPROC]; p++) {
+    acquire(&p->lock);
+    if(p->state != UNUSED) {
+      nproc++;
+    }
+    release(&p->lock);
+  }
+  return nproc;
+}
+
+uint64 sys_sysinfo(void){
+  struct sysinfo kinfo;
+  uint64 info;
+  if(argaddr(0,&info)<0)
+    return -1;
+  kinfo.freemem = cal_freemem();
+  kinfo.nproc = cal_nproc();
+  if(copyout(myproc()->pagetable,(uint64)info,(char*)&kinfo,sizeof(struct sysinfo))<0){
+    return -1;
+  }
+  return 0;
+}
+
