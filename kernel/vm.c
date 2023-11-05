@@ -293,6 +293,58 @@ freewalk(pagetable_t pagetable)
   kfree((void*)pagetable);
 }
 
+static int printdeep = 0;
+/*
+// Recursively free page-table pages.
+// All leaf mappings must already have been removed.
+void
+vmprint(pagetable_t pagetable)
+{
+  if(printdeep == 0)
+    printf("page table %p\n", (uint64)pagetable);
+  // there are 2^9 = 512 PTEs in a page table.
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pagetable[i];
+    if((pte & PTE_V) && (pte & (PTE_R|PTE_W|PTE_X)) == 0){
+      // this PTE points to a lower-level page table.
+      printdeep++;
+      uint64 child = PTE2PA(pte);
+      vmprint((pagetable_t)child);
+      //pagetable[i] = 0; toto tu bolo povodne
+      printdeep--;
+    } else if(pte & PTE_V){
+      for (int j = 0; j <= printdeep; j++) {
+        printf("..");
+      }
+      printf("%d: pte %p pa %p\n", i, (uint64)pte, (uint64)PTE2PA(pte));
+    }
+  }
+}*/
+void
+vmprint(pagetable_t pagetable)
+{
+  if (printdeep == 0)
+    printf("page table %p\n", (uint64)pagetable);
+  for (int i = 0; i < 512; i++) {
+    pte_t pte = pagetable[i];
+    if (pte & PTE_V) {
+      for (int j = 0; j <= printdeep; j++) {
+        printf("..");
+      }
+      printf("%d: pte %p pa %p\n", i, (uint64)pte, (uint64)PTE2PA(pte));
+    }
+    // pintes to lower-level page table
+    if((pte & PTE_V) && (pte & (PTE_R|PTE_W|PTE_X)) == 0){
+      printdeep++;
+      uint64 child_pa = PTE2PA(pte);
+      vmprint((pagetable_t)child_pa);
+      printdeep--;
+    }
+  }
+}
+
+
+
 // Free user memory pages,
 // then free page-table pages.
 void
